@@ -18,7 +18,6 @@ class Application:
 		primeiroContainer["padx"] = 10
 		primeiroContainer.pack(side=LEFT)		
 
-
 		clear = Button(primeiroContainer)
 		clear["text"] = "Clear"
 		clear["font"] = ("Calibri", "8")
@@ -47,6 +46,16 @@ class Application:
 		retangulo.pack(side=TOP)	
 
 
+		circulo = Button(primeiroContainer)
+		circulo["text"] = "Circulo"
+		circulo["font"] = ("Calibri", "8")
+		circulo.config (height = 0, width = 15)
+		circulo["command"] = self.drawCircle
+		circulo["pady"] = 0
+		circulo["padx"] = 0
+		circulo.pack(side=TOP)	
+
+
 		triangulo = Button(primeiroContainer)
 		triangulo["text"] = "Triangulo"
 		triangulo["font"] = ("Calibri", "8")
@@ -60,9 +69,40 @@ class Application:
 
 
 	def clearCanvas(self):
+		infoLabel["text"] = ""
 		mainCanvas.delete("all")
+		def clearEvent(event):
+			None		
+
+		mainCanvas.bind("<ButtonPress-1>", clearEvent)
+		mainCanvas.bind("<ButtonRelease-1>", clearEvent)
+
+
+	def drawTriangle(self):
+		infoLabel["text"] = "Escolha três pontos para desenhar o triângulo"
+		def tPoint(event):
+			if len(points) < 6:
+				x1, y1 = (event.x -1), (event.y -1)
+				x2, y2 = (event.x +1), (event.y +1)
+				mainCanvas.create_oval(x1, y1, x1, y1, fill="black")
+				points.append(event.x)
+				points.append(event.y)
+			else:
+				mainCanvas.create_polygon(points, outline='black', fill='white')
+				i = len(points)
+				while i > 0:
+					points.pop()
+					i = i-1	
+		
+		def	tGraph(event):
+			None
+
+		mainCanvas.bind ("<ButtonPress-1>", tPoint)
+		mainCanvas.bind ("<ButtonRelease-1>", tGraph)
+	
 
 	def drawLine(self):
+		infoLabel["text"] = "Clique e arraste para desenhar a linha"
 		def point(event):
 			x1, y1 = (event.x -1), (event.y -1)
 			x2, y2 = (event.x +1), (event.y +1)
@@ -83,6 +123,7 @@ class Application:
 		mainCanvas.bind ("<ButtonRelease-1>", graph)
 	
 	def drawRectangle(self):
+		infoLabel["text"] = "Clique e arraste para desenhar o retângulo"
 		def rPoint(event):
 			x1, y1 = (event.x-1), (event.y-1)
 			x2, y2 = (event.x+1), (event.y+1)
@@ -102,30 +143,48 @@ class Application:
 		mainCanvas.bind ("<ButtonPress-1>", rPoint)
 		mainCanvas.bind ("<ButtonRelease-1>", rGraph)
 
-	def drawTriangle(self):
-		def tPoint(event):
+	def drawCircle(self):
+		infoLabel["text"] = "Clique e arraste para desenhar o circulo"
+		def cPoint(event):
 			x1, y1 = (event.x-1), (event.y-1)
 			x2, y2 = (event.x+1), (event.y+1)
 			points.append(event.x)
 			points.append(event.y)
 		
-		def tGraph(event):
+		def cGraph(event):
 			x1, y1 = (event.x-1), (event.y-1)
 			x2, y2 = (event.x+1), (event.y+1)
 			points.append(event.x)
 			points.append(event.y)	
-			mainCanvas.create_triangle(points)
+			mainCanvas.create_oval(points)
 			i = len(points)
 			while i > 0:
 				points.pop()
 				i = i-1
-		mainCanvas.bind ("<ButtonPress-1>", tPoint)
-		mainCanvas.bind ("<ButtonRelease-1>", tGraph)
+		mainCanvas.bind ("<ButtonPress-1>", cPoint)
+		mainCanvas.bind ("<ButtonRelease-1>", cGraph)
 
 
 
 
 mainCanvas = Canvas(root, width = canvas_width, height = canvas_height, bg="white")
 mainCanvas.pack(expand = True, fill = "both")
+
+coordLabel = Label(root, text="Coordenadas")
+coordLabel["font"] = ("Calibri", "8")
+coordLabel.pack(side=BOTTOM)
+
+infoLabel = Label(root)
+infoLabel["font"] = ("Calibri", "8")
+infoLabel.pack(side = TOP)
+
+def motion(event):
+	posx, posy = event.x, event.y
+	coordLabel["text"] = ("PosX = " + str(posx) + " PosY = " + str(posy))	
+
+mainCanvas.bind('<Motion>', motion)
+
+
+
 Application(root)
 root.mainloop()
