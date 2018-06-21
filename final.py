@@ -1,3 +1,6 @@
+## perguntar sobre ponto de criação
+## pode colocar na hora da seleção do desenho ou como fica
+
 from tkinter import *
 
 root = Tk()
