@@ -1,13 +1,10 @@
-## perguntar sobre ponto de criação
-## pode colocar na hora da seleção do desenho ou como fica
-
 from tkinter import *
 
 root = Tk()
 root.title("Paint CG")
 root.resizable(0,0)
 canvas_width = 1000
-canvas_height = 500
+canvas_height = 400
 points = []
 
 
@@ -162,17 +159,25 @@ class Application:
 
 
 	def translateSelect(self):
-		resetLabels()
-	
+		resetLabels()	
 		def getObj(event):
 			mx = mainCanvas.canvasx(event.x)
 			my = mainCanvas.canvasy(event.y)
-			canvasObject = mainCanvas.find_closest(mx, my, halo=5)
+			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)	
 			#implementar operacao de translaçao
 		
 		def transObj(event):
+			mx = mainCanvas.canvasx(event.x)
+			my = mainCanvas.canvasy(event.y)
+			coords = mainCanvas.coords(self.canvasObject)
+			deltaX = mx - coords[0]
+			deltaY = my - coords[1]
+			print(coords)
+			print(deltaY)
+			print(deltaX)
+			mainCanvas.move(self.canvasObject, deltaX, deltaY)
 			None		
-
+			###### se pegar o x y novo e subtrair dos x y antigo tem a posicao nova
 
 		mainCanvas.bind("<ButtonPress-1>", getObj)
 		mainCanvas.bind("<ButtonRelease-1>", transObj)
@@ -199,7 +204,6 @@ class Application:
 			if len(points) < 6:
 				x1, y1 = (event.x -1), (event.y -1)
 				x2, y2 = (event.x +1), (event.y +1)
-				mainCanvas.create_oval(x1, y1, x1, y1, fill="black")
 				points.append(event.x)
 				points.append(event.y)
 			else:
