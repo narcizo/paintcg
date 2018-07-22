@@ -27,7 +27,11 @@ def resetLabels():
 	def fClear(event):
 		None
 	mainCanvas.bind("<B1-Motion>", fClear)
-#	mainCanvas.bind("<B4-
+	mainCanvas.bind("<ButtonPress-1>", fClear)
+	mainCanvas.bind("<ButtonRelease-1>", fClear)
+	mainCanvas.bind('<Button-5>', fClear)  # only with Linux, wheel scroll down
+	mainCanvas.bind('<Button-4>', fClear)  # only with Linux, wheel scroll up	
+
 
 
 class Application:
@@ -131,6 +135,25 @@ class Application:
 		x0 = mainCanvas.canvasx(0)
 		y0 = mainCanvas.canvasy(0)
 
+		zoomExtend = Button(primeiroContainer)
+		zoomExtend["text"] = "Zoom Extend"
+		zoomExtend["font"] = ("Calibri", "8")
+		zoomExtend.config(height = 0, width = 15)
+		zoomExtend["command"] = self.zoomExtend
+		zoomExtend["pady"] = 0
+		zoomExtend["padx"] = 0
+		zoomExtend.pack(side=TOP)
+
+	def zoomExtend(self):
+		resetLabels()
+		def focus(event):
+			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
+			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
+			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
+			coords = mainCanvas.coords(self.canvasObject)
+			mainCanvas.scan_dragto(int(coords[0]), int(coords[1]), gain=1)
+
+		mainCanvas.bind("<ButtonPress-1>", focus)
 
 	def moveCanvas(self):
 		resetLabels()
@@ -150,8 +173,6 @@ class Application:
 			canvas.configure(scrollregion=canvas.bbox("all"))
 
 		def scroll_start(event):
-			global pressed
-			pressed = not pressed
 			x = mainCanvas.canvasx(event.x)
 			y = mainCanvas.canvasy(event.y)		
 			mainCanvas.scan_mark(event.x, event.y)
@@ -177,8 +198,8 @@ class Application:
 		operacaoEntry.pack_forget()
 		operacoesLabel["text"] = ""
 		def selectObj(event):
-			mx = mainCanvas.canvasx(event.x)
-			my = mainCanvas.canvasy(event.y)
+			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
+			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
 			mainCanvas.focus(self.canvasObject)
 
@@ -196,8 +217,8 @@ class Application:
 		operacaoEntry.pack(side=TOP)
 		operacaoEntry2.pack(side=BOTTOM)
 		def scaleObj(event):
-			mx = mainCanvas.canvasx(event.x)
-			my = mainCanvas.canvasy(event.y)
+			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
+			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
 			newEscalax = operacaoEntry.get()
 			newEscalay = operacaoEntry2.get()
@@ -215,11 +236,11 @@ class Application:
 
 	def rotatingSelect(self):
 		resetLabels()
-		operacoesLabel["text"] = "Insira o angulo de rotaçao e selecione qual objeto sera rotacionado"
+		operacoesLabel["text"] = "Insira o angulo de rotaçao e selecione qual objeto sera rotacionado (rotaçao no ponto de criaçao)"
 		operacaoEntry.pack(side=LEFT)
 		def rotateObj(event):
-			mx = mainCanvas.canvasx(event.x)
-			my = mainCanvas.canvasy(event.y)
+			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
+			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
 			angulo = float(operacaoEntry.get())
 			angulo = math.radians(angulo)
@@ -253,7 +274,8 @@ class Application:
 
 
 	def translateSelect(self):
-		resetLabels()	
+		resetLabels()
+		operacoesLabel["text"] = "Clique no objeto a ser transladado e arraste para a posiçao desejada (translaçao baseada no ponto de criaçao)"
 		def getObj(event):
 			mx = mainCanvas.canvasx(event.x)
 			my = mainCanvas.canvasy(event.y)
@@ -293,8 +315,8 @@ class Application:
 			if len(points) < 6:
 				x1, y1 = (event.x -1), (event.y -1)
 				x2, y2 = (event.x +1), (event.y +1)
-				points.append(event.x)
-				points.append(event.y)
+				points.append(event.x+mainCanvas.canvasx(0))
+				points.append(event.y+mainCanvas.canvasy(0))
 			else:
 				mainCanvas.create_polygon(points, outline='black', fill='')
 				print(points)
@@ -318,14 +340,14 @@ class Application:
 		def point(event):
 			x1, y1 = (event.x -1), (event.y -1)
 			x2, y2 = (event.x +1), (event.y +1)
-			points.append(event.x)
-			points.append(event.y)
+			points.append(event.x+mainCanvas.canvasx(0))
+			points.append(event.y+mainCanvas.canvasy(0))
 
 		def	graph(event):
 			x1, y1 = (event.x-1), (event.y-1)
 			x2, y2 = (event.x+1), (event.y+1)
-			points.append(event.x)
-			points.append(event.y)
+			points.append(event.x+mainCanvas.canvasx(0))
+			points.append(event.y+mainCanvas.canvasy(0))
 			mainCanvas.create_line(points)
 			i = len(points)
 			while i > 0:
@@ -341,14 +363,15 @@ class Application:
 		def rPoint(event):
 			x1, y1 = mainCanvas.canvasx(event.x-1), mainCanvas.canvasy(event.y-1)
 			x2, y2 = mainCanvas.canvasx(event.x+1), mainCanvas.canvasy(event.y+1)
-			points.append(event.x-x0)
-			points.append(event.y-y0)
+			points.append(event.x+mainCanvas.canvasx(0))
+			points.append(event.y+mainCanvas.canvasy(0))
+
 
 		def rGraph(event):
 			x1, y1 = mainCanvas.canvasx(event.x-1), mainCanvas.canvasy(event.y-1)
 			x2, y2 = mainCanvas.canvasx(event.x+1), mainCanvas.canvasy(event.y+1)
-			points.append(event.x-x0)
-			points.append(event.y-y0)
+			points.append(event.x+mainCanvas.canvasx(0))
+			points.append(event.y+mainCanvas.canvasy(0))
 			fpoints = [points[0],points[1], points[2], points[1], points[2], points[3], points[0], points[3]]
 			mainCanvas.create_polygon(fpoints, outline='black', fill='')
 			i = len(fpoints)
@@ -370,14 +393,14 @@ class Application:
 		def cPoint(event):
 			x1, y1 = (event.x-1), (event.y-1)
 			x2, y2 = (event.x+1), (event.y+1)
-			points.append(event.x)
-			points.append(event.y)
+			points.append(event.x+mainCanvas.canvasx(0))
+			points.append(event.y+mainCanvas.canvasy(0))
 
 		def cGraph(event):
 			x1, y1 = (event.x-1), (event.y-1)
 			x2, y2 = (event.x+1), (event.y+1)
-			points.append(event.x)
-			points.append(event.y)
+			points.append(event.x+mainCanvas.canvasx(0))
+			points.append(event.y+mainCanvas.canvasy(0))
 			mainCanvas.create_oval(points)
 			i = len(points)
 			while i > 0:
@@ -409,6 +432,11 @@ operacoesLabel["font"] = ("Calibri", "8")
 operacoesLabel.pack(side=LEFT)
 operacaoEntry = Entry(containerOperacoes)
 operacaoEntry2 = Entry(containerOperacoes)
+global x0
+global y0
+x0 = mainCanvas.canvasx(0)
+y0 = mainCanvas.canvasy(0)
+
 
 # posicao cursor
 def motion(event):
