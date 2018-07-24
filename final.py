@@ -145,7 +145,7 @@ class Application:
 		zoomExtend.pack(side=TOP)
 		
 		zoomMove = Button(primeiroContainer)
-		zoomMove["text"] = "Zoom Move"
+		zoomMove["text"] = "Zoom seleciona janela"
 		zoomMove["font"] = ("Calibri", "8")
 		zoomMove.config(height = 0, width = 15)
 		zoomMove["command"] = self.zoomMove
