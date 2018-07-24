@@ -143,17 +143,66 @@ class Application:
 		zoomExtend["pady"] = 0
 		zoomExtend["padx"] = 0
 		zoomExtend.pack(side=TOP)
+		
+		zoomMove = Button(primeiroContainer)
+		zoomMove["text"] = "Zoom Move"
+		zoomMove["font"] = ("Calibri", "8")
+		zoomMove.config(height = 0, width = 15)
+		zoomMove["command"] = self.zoomMove
+		zoomMove["pady"] = 0
+		zoomMove["padx"] = 0
+		zoomMove.pack(side=TOP)
+		
+
+	def zoomMove(self):
+		resetLabels()
+		infoLabel["text"] = "Escolha dois pontos, um mais a cima e a esquerda e outro mais a baixo e a direita de onde quer fazer o zoom (zoom 2x)"
+		def rPoint(event):
+			if len(points) < 4:
+				points.append(event.x+mainCanvas.canvasx(0))
+				points.append(event.y+mainCanvas.canvasy(0))
+			else:
+				quadrado = mainCanvas.find_overlapping(points[0], points[1], points[2], points[3])
+				print(points)
+				i = len(points)
+				while i > 0:
+					points.pop()
+					i = i-1
+				counter = 0
+				for i in quadrado:
+					coords = mainCanvas.coords(quadrado[counter])
+					mainCanvas.scale(quadrado[counter], coords[0], coords[1], 2., 2.)
+					counter += 1
+		def rGraph(event):
+			None
+
+		mainCanvas.bind ("<ButtonPress-1>", rPoint)
+		mainCanvas.bind ("<ButtonRelease-1>", rGraph)
+
+
+
 
 	def zoomExtend(self):
 		resetLabels()
 		def focus(event):
-			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
-			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
+			mx = mainCanvas.canvasx(event.x)
+			my = mainCanvas.canvasy(event.y)
+			canvas_mid_x = (canvas_width/2)+mainCanvas.canvasx(0)
+			canvas_mid_y = (canvas_height/2)+mainCanvas.canvasy(0)
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
 			coords = mainCanvas.coords(self.canvasObject)
-			mainCanvas.scan_dragto(int(coords[0]), int(coords[1]), gain=1)
-
+			higherx = coords[2]+mainCanvas.canvasx(0)
+			highery = coords[7]+mainCanvas.canvasy(0)
+			lowerx = coords[0]+mainCanvas.canvasx(0)
+			lowery = coords[1]+mainCanvas.canvasy(0)
+			xpos = ((higherx + lowerx) / 2)+mainCanvas.canvasx(0) 
+			ypos = ((highery + lowery) / 2)+mainCanvas.canvasy(0)
+			mainCanvas.scan_dragto(int(canvas_mid_x-xpos+mainCanvas.canvasx(0)), int(canvas_mid_y-ypos+mainCanvas.canvasy(0)), gain=1)
+		def fClear(event):
+			None
+			
 		mainCanvas.bind("<ButtonPress-1>", focus)
+		mainCanvas.bind("<ButtonRelease-1>", fClear)
 
 	def moveCanvas(self):
 		resetLabels()
@@ -163,14 +212,14 @@ class Application:
 			y = mainCanvas.canvasy(event.y)
 			scale = 2.
 			mainCanvas.scale('all', x, y, scale, scale)
-			canvas.configure(scrollregion=canvas.bbox("all"))				
+			mainCanvas.configure(scrollregion=mainCanvas.bbox("all"))				
 
 		def wheeldown(event):
 			x = mainCanvas.canvasx(event.x)
 			y = mainCanvas.canvasy(event.y)
 			scale = 0.5
 			mainCanvas.scale('all', x, y, scale, scale)
-			canvas.configure(scrollregion=canvas.bbox("all"))
+			mainCanvas.configure(scrollregion=mainCanvas.bbox("all"))
 
 		def scroll_start(event):
 			x = mainCanvas.canvasx(event.x)
