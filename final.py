@@ -24,6 +24,7 @@ def resetLabels():
 	operacaoEntry2.pack_forget()
 	operacoesLabel["text"] = ""
 	infoLabel["text"] = ""
+	mainCanvas.itemconfig('all', outline='black')
 	def fClear(event):
 		None
 	mainCanvas.bind("<B1-Motion>", fClear)
@@ -246,17 +247,38 @@ class Application:
 		resetLabels()
 		operacaoEntry.pack_forget()
 		operacoesLabel["text"] = ""
+		infoLabel["text"] = "Escolha um objeto para seleção ou clique em dois pontos que irão conter os objetos a serem selecionados"
 		def selectObj(event):
+			mainCanvas.itemconfig('all', outline='black')
 			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
 			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
 			mainCanvas.focus(self.canvasObject)
+			mainCanvas.itemconfig(self.canvasObject, outline='red')
+			
+		def selectCon(event):
+			mainCanvas.itemconfig('all', outline='black')
+			if len(points) < 4:
+				points.append(event.x+mainCanvas.canvasx(0))
+				points.append(event.y+mainCanvas.canvasy(0))
+			else:
+				quadrado = mainCanvas.find_overlapping(points[0], points[1], points[2], points[3])
+				print(points)
+				i = len(points)
+				while i > 0:
+					points.pop()
+					i = i-1
+				counter = 0
+				for i in quadrado:
+					coords = mainCanvas.coords(quadrado[counter])
+					mainCanvas.itemconfig(quadrado[counter], outline='red')
+					counter += 1
 
 
 		def fClear(event):
 			None
 		
-		mainCanvas.bind("<ButtonPress-1>", selectObj)
+		mainCanvas.bind("<ButtonPress-1>", selectCon)
 		mainCanvas.bind("<ButtonRelease-1>", fClear)
 
 
