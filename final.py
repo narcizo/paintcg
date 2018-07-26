@@ -24,7 +24,15 @@ def resetLabels():
 	operacaoEntry2.pack_forget()
 	operacoesLabel["text"] = ""
 	infoLabel["text"] = ""
-	mainCanvas.itemconfig('all', outline='black')
+#	mainCanvas.itemconfig('all', outline='black')
+	todos = mainCanvas.find_all()
+	for i in todos:
+		tags = mainCanvas.itemcget(i, "tags")
+		if "linha" in tags:
+			mainCanvas.itemconfig(i, fill='black')
+		else:
+			mainCanvas.itemconfig(i, outline='black')
+
 	def fClear(event):
 		None
 	mainCanvas.bind("<B1-Motion>", fClear)
@@ -192,13 +200,34 @@ class Application:
 			canvas_mid_y = (canvas_height/2)+mainCanvas.canvasy(0)
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
 			coords = mainCanvas.coords(self.canvasObject)
-			higherx = coords[2]+mainCanvas.canvasx(0)
-			highery = coords[7]+mainCanvas.canvasy(0)
-			lowerx = coords[0]+mainCanvas.canvasx(0)
-			lowery = coords[1]+mainCanvas.canvasy(0)
-			xpos = ((higherx + lowerx) / 2)+mainCanvas.canvasx(0) 
-			ypos = ((highery + lowery) / 2)+mainCanvas.canvasy(0)
-			mainCanvas.scan_dragto(int(canvas_mid_x-xpos+mainCanvas.canvasx(0)), int(canvas_mid_y-ypos+mainCanvas.canvasy(0)), gain=1)
+			if len(coords) == 8:
+				higherx = coords[2]+mainCanvas.canvasx(0)
+				highery = coords[7]+mainCanvas.canvasy(0)
+				lowerx = coords[0]+mainCanvas.canvasx(0)
+				lowery = coords[1]+mainCanvas.canvasy(0)
+				xpos = ((higherx + lowerx) / 2)+mainCanvas.canvasx(0) 
+				ypos = ((highery + lowery) / 2)+mainCanvas.canvasy(0)
+				mainCanvas.scan_dragto(int(canvas_mid_x-xpos+mainCanvas.canvasx(0)), int(canvas_mid_y-ypos+mainCanvas.canvasy(0)), gain=1)
+			elif len(coords) == 6:
+				mediumx = coords[4] + mainCanvas.canvasx(0)
+				mediumy = coords[5] + mainCanvas.canvasy(0)
+				higherx = coords[2] + mainCanvas.canvasx(0)
+				highery = coords[3] + mainCanvas.canvasy(0)
+				lowerx = coords[0] + mainCanvas.canvasx(0)
+				lowery = coords[1]+mainCanvas.canvasy(0)
+				xpos = ((higherx + lowerx + mediumx) / 3)+ mainCanvas.canvasx(0)
+				ypos = ((highery + lowery + mediumy) / 3)+mainCanvas.canvasy(0)	
+				mainCanvas.scan_dragto(int(canvas_mid_x-xpos+mainCanvas.canvasx(0)), int(canvas_mid_y-ypos+mainCanvas.canvasy(0)), gain=1)
+	
+			elif len(coords) == 4:
+				higherx = coords[2] + mainCanvas.canvasx(0)
+				highery = coords[3] + mainCanvas.canvasy(0)
+				lowerx = coords[0] + mainCanvas.canvasx(0)
+				lowery = coords[1]+mainCanvas.canvasy(0)
+				xpos = ((higherx + lowerx) / 2)+ mainCanvas.canvasx(0)
+				ypos = ((highery + lowery) / 2)+mainCanvas.canvasy(0)	
+				mainCanvas.scan_dragto(int(canvas_mid_x-xpos+mainCanvas.canvasx(0)), int(canvas_mid_y-ypos+mainCanvas.canvasy(0)), gain=1)
+
 		def fClear(event):
 			None
 			
@@ -249,15 +278,41 @@ class Application:
 		operacoesLabel["text"] = ""
 		infoLabel["text"] = "Escolha um objeto para seleção ou clique em dois pontos que irão conter os objetos a serem selecionados"
 		def selectObj(event):
-			mainCanvas.itemconfig('all', outline='black')
+			todos = mainCanvas.find_all()
+			for i in todos:
+				tags = mainCanvas.itemcget(i, "tags")
+				if "linha" in tags:
+					mainCanvas.itemconfig(i, fill='black')
+				else:
+					mainCanvas.itemconfig(i, outline='black')
+
 			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
 			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
 			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
-			mainCanvas.focus(self.canvasObject)
-			mainCanvas.itemconfig(self.canvasObject, outline='red')
+			tags = mainCanvas.itemcget(self.canvasObject, "tags")
+			if "linha" in tags:
+				mainCanvas.itemconfig(self.canvasObject, fill='red')
+			else:
+				mainCanvas.itemconfig(self.canvasObject, outline='red')
 			
 		def selectCon(event):
-			mainCanvas.itemconfig('all', outline='black')
+			todos = mainCanvas.find_all()
+			for i in todos:
+				tags = mainCanvas.itemcget(i, "tags")
+				if "linha" in tags:
+					mainCanvas.itemconfig(i, fill='black')
+				else:
+					mainCanvas.itemconfig(i, outline='black')
+
+			mx = mainCanvas.canvasx(event.x+mainCanvas.canvasx(0))
+			my = mainCanvas.canvasy(event.y+mainCanvas.canvasy(0))
+			self.canvasObject = mainCanvas.find_closest(mx, my, halo=5)
+			tags = mainCanvas.itemcget(self.canvasObject, "tags")
+			if "linha" in tags:
+				mainCanvas.itemconfig(self.canvasObject, fill='red')
+			else:
+				mainCanvas.itemconfig(self.canvasObject, outline='red')
+
 			if len(points) < 4:
 				points.append(event.x+mainCanvas.canvasx(0))
 				points.append(event.y+mainCanvas.canvasy(0))
@@ -270,9 +325,15 @@ class Application:
 					i = i-1
 				counter = 0
 				for i in quadrado:
-					coords = mainCanvas.coords(quadrado[counter])
-					mainCanvas.itemconfig(quadrado[counter], outline='red')
-					counter += 1
+					tags = mainCanvas.itemcget(i, "tags")
+					if "linha" in tags:
+						mainCanvas.itemconfig(i, fill='red')
+					else:
+						mainCanvas.itemconfig(i, outline='red')
+
+#					coords = mainCanvas.coords(quadrado[counter])
+#					mainCanvas.itemconfig(quadrado[counter], outline='red')
+#					counter += 1
 
 
 		def fClear(event):
@@ -404,8 +465,6 @@ class Application:
 
 
 	def drawLine(self):
-		operacaoEntry.pack_forget()
-		operacoesLabel["text"] = ""
 		resetLabels()
 		infoLabel["text"] = "Clique e arraste para desenhar a linha"
 		def point(event):
@@ -419,7 +478,7 @@ class Application:
 			x2, y2 = (event.x+1), (event.y+1)
 			points.append(event.x+mainCanvas.canvasx(0))
 			points.append(event.y+mainCanvas.canvasy(0))
-			mainCanvas.create_line(points)
+			mainCanvas.create_line(points, tags=("linha"))
 			i = len(points)
 			while i > 0:
 				points.pop()
@@ -444,7 +503,8 @@ class Application:
 			points.append(event.x+mainCanvas.canvasx(0))
 			points.append(event.y+mainCanvas.canvasy(0))
 			fpoints = [points[0],points[1], points[2], points[1], points[2], points[3], points[0], points[3]]
-			mainCanvas.create_polygon(fpoints, outline='black', fill='')
+			aa = mainCanvas.create_polygon(fpoints, outline='black', fill='')
+			print(mainCanvas.coords(aa))
 			i = len(fpoints)
 			while i > 0:
 				fpoints.pop()
@@ -472,7 +532,8 @@ class Application:
 			x2, y2 = (event.x+1), (event.y+1)
 			points.append(event.x+mainCanvas.canvasx(0))
 			points.append(event.y+mainCanvas.canvasy(0))
-			mainCanvas.create_oval(points)
+			eita = mainCanvas.create_oval(points)
+			print(mainCanvas.coords(eita))
 			i = len(points)
 			while i > 0:
 				points.pop()
