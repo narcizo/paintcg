@@ -57,7 +57,7 @@ class Application:
 		if usuario == "usuariodevmedia" and senha == "dev":
 			self.mensagem["text"] = "Autenticado"
 		else:
-			self.mensagem["text"] = "Erro na autenticação"		
+			self.mensagem["text"] = "Erro na autenticação, favor checar as informações"		
 
 root = Tk()
 Application(root)
